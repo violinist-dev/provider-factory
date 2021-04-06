@@ -18,6 +18,8 @@ interface ProviderInterface
 
     public function getDefaultBase(Slug $slug, $default_branch);
 
+    public function getFileFromSlug(Slug $slug, $file);
+
     public function createFork($user, $repo, $fork_user);
 
     /**

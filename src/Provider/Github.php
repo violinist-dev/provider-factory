@@ -93,6 +93,13 @@ class Github extends ProviderBase {
         return $default_base;
     }
 
+    public function getFileFromSlug(Slug $slug, $file)
+    {
+        /** @var \Github\Api\Repo $repo_resource */
+        $repo_resource = $this->client->api('repo');
+        return $repo_resource->contents()->download($slug->getUserName(), $slug->getUserRepo(), $file);
+    }
+
     public function createFork($user, $repo, $fork_user)
     {
         return $this->client->api('repo')->forks()->create($user, $repo, [
