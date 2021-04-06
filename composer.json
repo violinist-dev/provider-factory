@@ -1,0 +1,15 @@
+{
+    "name": "violinist-dev/provider-factory",
+    "description": "A provider factory to get providers based on URLs and Repo Slugs",
+    "type": "library",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Eirik S. Morland",
+            "email": "eirik@morland.no"
+        }
+    ],
+    "require": {
+        "violinist-dev/slug-from-url": "^1.2"
+    }
+}
