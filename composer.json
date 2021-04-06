@@ -9,6 +9,11 @@
             "email": "eirik@morland.no"
         }
     ],
+    "autoload": {
+        "psr-4": {
+            "Violinist\\ProviderFactory\\": "src"
+        }
+    },
     "require": {
         "violinist-dev/slug-from-url": "^1.2",
         "knplabs/github-api": "^2.11.0",
