@@ -4,6 +4,7 @@ namespace Violinist\ProviderFactory;
 
 use Github\Client;
 use Gitlab\Client as GitlabClient;
+use Violinist\ProviderFactory\Provider\Github;
 use Violinist\Slug\Slug;
 
 class ProviderFactory {
