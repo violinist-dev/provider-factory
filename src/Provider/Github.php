@@ -15,9 +15,9 @@ class Github extends ProviderBase {
         $this->client = $client;
     }
 
-    public function authenticate($user, $token)
+    public function authenticate($token)
     {
-        $this->client->authenticate($user, null, Client::AUTH_ACCESS_TOKEN);
+        $this->client->authenticate($token, null, Client::AUTH_ACCESS_TOKEN);
     }
 
     public function repoIsPrivate(Slug $slug)

@@ -6,7 +6,7 @@ use Violinist\Slug\Slug;
 
 interface ProviderInterface
 {
-    public function authenticate($user, $token);
+    public function authenticate($token);
 
     public function repoIsPrivate(Slug $slug);
 
