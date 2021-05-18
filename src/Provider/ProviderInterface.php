@@ -12,10 +12,15 @@ interface ProviderInterface
 
     public function getDefaultBranch(Slug $slug);
 
+    public function getShaFromBranchAndSlug($branch, Slug $slug);
+
     public function getBranchesFlattened(Slug $slug);
 
     public function getPrsNamed(Slug $slug);
 
+    /**
+     * @deprecated Use ::getShaFromBranchAndSlug instead
+     */
     public function getDefaultBase(Slug $slug, $default_branch);
 
     public function getFileFromSlug(Slug $slug, $file);

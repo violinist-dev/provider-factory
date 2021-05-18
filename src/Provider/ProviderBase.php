@@ -2,6 +2,8 @@
 
 namespace Violinist\ProviderFactory\Provider;
 
+use Violinist\Slug\Slug;
+
 abstract class ProviderBase implements ProviderInterface
 {
     /**
@@ -17,5 +19,13 @@ abstract class ProviderBase implements ProviderInterface
      * @var array
      */
     protected $cache = [];
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getDefaultBase(Slug $slug, $default_branch)
+    {
+        return $this->getShaFromBranchAndSlug($default_branch, $slug);
+    }
 
 }

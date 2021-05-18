@@ -79,15 +79,15 @@ class Github extends ProviderBase {
         return $prs_named;
     }
 
-    public function getDefaultBase(Slug $slug, $default_branch)
+    public function getShaFromBranchAndSlug($branch, Slug $slug)
     {
         $user = $slug->getUserName();
         $repo = $slug->getUserRepo();
         $branches = $this->getBranches($user, $repo);
         $default_base = null;
-        foreach ($branches as $branch) {
-            if ($branch['name'] == $default_branch) {
-                $default_base = $branch['commit']['sha'];
+        foreach ($branches as $remote_branch) {
+            if ($remote_branch['name'] == $branch) {
+                $default_base = $remote_branch['commit']['sha'];
             }
         }
         return $default_base;
