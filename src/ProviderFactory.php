@@ -4,7 +4,10 @@ namespace Violinist\ProviderFactory;
 
 use Github\Client;
 use Gitlab\Client as GitlabClient;
+use Violinist\ProviderFactory\Provider\BitBucket;
 use Violinist\ProviderFactory\Provider\Github;
+use Violinist\ProviderFactory\Provider\Gitlab;
+use Violinist\ProviderFactory\Provider\SelfHostedGitlab;
 use Violinist\Slug\Slug;
 
 class ProviderFactory {
@@ -26,7 +29,7 @@ class ProviderFactory {
 
           case 'bitbucket.org':
               $client = new \Bitbucket\Client();
-              $provider = new Bitbucket($client);
+              $provider = new BitBucket($client);
               break;
 
           default:
