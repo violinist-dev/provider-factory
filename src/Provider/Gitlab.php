@@ -2,10 +2,7 @@
 
 namespace Violinist\ProviderFactory\Provider;
 
-use Github\Api\Issue;
-use Github\Api\PullRequest;
-use Github\Client;
-use Github\ResultPager;
+use Gitlab\Client;
 use Violinist\Slug\Slug;
 
 class Gitlab extends ProviderBase {
@@ -17,7 +14,7 @@ class Gitlab extends ProviderBase {
 
     public function authenticate($token)
     {
-        $this->client->authenticate($token, null, Client::AUTH_ACCESS_TOKEN);
+        $this->client->authenticate($token, Client::AUTH_OAUTH_TOKEN);
     }
 
     public function repoIsPrivate(Slug $slug)
@@ -32,10 +29,9 @@ class Gitlab extends ProviderBase {
 
     public function getDefaultBranch(Slug $slug)
     {
-        $user = $slug->getUserName();
-        $repo = $slug->getUserRepo();
         if (!isset($this->cache['repo'])) {
-            $this->cache['repo'] = $this->client->api('repo')->show($user, $repo);
+            $project_id = $this->getProjectId($slug->getUrl());
+            $this->cache['repo'] = $this->client->projects()->show($project_id);
         }
         return $this->cache['repo']['default_branch'];
     }
@@ -81,23 +77,21 @@ class Gitlab extends ProviderBase {
 
     public function getShaFromBranchAndSlug($branch, Slug $slug)
     {
-        $user = $slug->getUserName();
-        $repo = $slug->getUserRepo();
-        $branches = $this->getBranches($user, $repo);
-        $default_base = null;
-        foreach ($branches as $remote_branch) {
-            if ($remote_branch['name'] == $branch) {
-                $default_base = $remote_branch['commit']['sha'];
+        $url = $slug->getUrl();
+        $branches = $this->client->repositories()->branches($this->getProjectId($url));
+        foreach ($branches as $repo_branch) {
+            if ($repo_branch['name'] == $branch) {
+                return $repo_branch['commit']['id'];
             }
         }
-        return $default_base;
+        return FALSE;
     }
 
     public function getFileFromSlug(Slug $slug, $file)
     {
-        /** @var \Github\Api\Repo $repo_resource */
-        $repo_resource = $this->client->api('repo');
-        return $repo_resource->contents()->download($slug->getUserName(), $slug->getUserRepo(), $file);
+        $default_branch = $this->getDefaultBranch($slug);
+        $url = $slug->getUrl();
+        return $this->client->repositoryFiles()->getRawFile($this->getProjectId($url), $file, $default_branch);
     }
 
     public function createFork($user, $repo, $fork_user)
@@ -135,5 +129,14 @@ class Gitlab extends ProviderBase {
         $user_name = $slug->getUserName();
         $user_repo = $slug->getUserRepo();
         return $this->client->api('pull_request')->update($user_name, $user_repo, $id, $params);
+    }
+
+    /**
+     * The project id in gitlab.
+     */
+    protected function getProjectId($url)
+    {
+        $url = parse_url($url);
+        return ltrim($url['path'], '/');
     }
 }
