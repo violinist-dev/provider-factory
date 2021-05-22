@@ -2,10 +2,7 @@
 
 namespace Violinist\ProviderFactory\Provider;
 
-use Github\Api\Issue;
-use Github\Api\PullRequest;
-use Github\Client;
-use Github\ResultPager;
+use Bitbucket\Client;
 use Violinist\Slug\Slug;
 
 class BitBucket extends ProviderBase {
@@ -17,7 +14,7 @@ class BitBucket extends ProviderBase {
 
     public function authenticate($token)
     {
-        $this->client->authenticate($token, null, Client::AUTH_ACCESS_TOKEN);
+        $this->client->authenticate(Client::AUTH_OAUTH_TOKEN, $token);
     }
 
     public function repoIsPrivate(Slug $slug)
@@ -34,10 +31,8 @@ class BitBucket extends ProviderBase {
     {
         $user = $slug->getUserName();
         $repo = $slug->getUserRepo();
-        if (!isset($this->cache['repo'])) {
-            $this->cache['repo'] = $this->client->api('repo')->show($user, $repo);
-        }
-        return $this->cache['repo']['default_branch'];
+        $repo = $this->client->repositories()->users($user)->show($repo);
+        return $repo["mainbranch"]["name"];
     }
 
     protected function getBranches($user, $repo)
@@ -83,21 +78,24 @@ class BitBucket extends ProviderBase {
     {
         $user = $slug->getUserName();
         $repo = $slug->getUserRepo();
-        $branches = $this->getBranches($user, $repo);
-        $default_base = null;
-        foreach ($branches as $remote_branch) {
+        $repo_users = $this->client->repositories()->users($user);
+        $repo_users->setPerPage(1000);
+        $branches = $repo_users->refs($repo)->branches()->list();
+        foreach ($branches["values"] as $remote_branch) {
             if ($remote_branch['name'] == $branch) {
-                $default_base = $remote_branch['commit']['sha'];
+                return $remote_branch['commit']['id'];
             }
         }
-        return $default_base;
+        return FALSE;
     }
 
     public function getFileFromSlug(Slug $slug, $file)
     {
-        /** @var \Github\Api\Repo $repo_resource */
-        $repo_resource = $this->client->api('repo');
-        return $repo_resource->contents()->download($slug->getUserName(), $slug->getUserRepo(), $file);
+        $user = $slug->getUserName();
+        $repo = $slug->getUserRepo();
+        $default_branch = $this->getDefaultBranch($slug);
+        $file_contents = $this->client->repositories()->users($user)->src($repo)->download($default_branch, $file);
+        return (string) $file_contents->getContents();
     }
 
     public function createFork($user, $repo, $fork_user)
