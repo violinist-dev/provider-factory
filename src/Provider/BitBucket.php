@@ -83,7 +83,7 @@ class BitBucket extends ProviderBase {
         $branches = $repo_users->refs($repo)->branches()->list();
         foreach ($branches["values"] as $remote_branch) {
             if ($remote_branch['name'] == $branch) {
-                return $remote_branch['commit']['id'];
+                return $remote_branch["target"]["hash"];
             }
         }
         return FALSE;
